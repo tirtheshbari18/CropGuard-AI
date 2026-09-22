@@ -5,6 +5,8 @@
 * **Category:** Software
 * **Theme:** Agriculture, FoodTech & Rural Development
 
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Ftirtheshbari18%2FCropGuard-AI&root-directory=frontend)
+
 ---
 
 ## 🌾 Project Overview
