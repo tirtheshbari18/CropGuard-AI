@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgis/postgis:15-3.3
+    container_name: cropguard_postgres
+    environment:
+      POSTGRES_USER: cropguard
+      POSTGRES_PASSWORD: cropguard_password
+      POSTGRES_DB: cropguard_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: always
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: cropguard_backend
+    environment:
+      DATABASE_URL: postgresql://cropguard:cropguard_password@postgres:5432/cropguard_db
+      SECRET_KEY: cropguard_ai_hackathon_super_secret_key_2026
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+    restart: always
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: cropguard_frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    restart: always
+
+volumes:
+  pgdata:
