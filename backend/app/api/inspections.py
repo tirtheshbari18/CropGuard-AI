@@ -37,10 +37,14 @@ async def analyze_crop_image(
         
         filename = f"crop_{unique_id}.jpg"
         file_path = os.path.join(UPLOAD_DIR, filename)
-        with open(file_path, "wb") as f:
-            f.write(contents)
-            
-        image_url = f"/static/uploads/{filename}"
+        try:
+            with open(file_path, "wb") as f:
+                f.write(contents)
+            image_url = f"/static/uploads/{filename}"
+        except Exception:
+            import base64
+            b64 = base64.b64encode(contents).decode("utf-8")
+            image_url = f"data:image/jpeg;base64,{b64}"
         image_bytes = contents
     elif sample_image_path:
         # Use demo sample image

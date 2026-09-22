@@ -1,4 +1,6 @@
 import os
+import tempfile
+import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -6,8 +8,13 @@ from app.database.session import Base, engine, SessionLocal
 from app.services.seed_service import seed_database
 from app.api import auth, inspections, alerts, analytics, system, demo
 
-# Create database tables automatically
-Base.metadata.create_all(bind=engine)
+logger = logging.getLogger("cropguard.main")
+
+# Create database tables automatically if connection succeeds
+try:
+    Base.metadata.create_all(bind=engine)
+except Exception as e:
+    logger.warning(f"Could not verify/create tables on startup: {e}")
 
 app = FastAPI(
     title="CropGuard AI — API Platform",
@@ -17,23 +24,44 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
-# Enable CORS for React Frontend
+# Environment-based CORS configuration
+allowed_origins_env = os.getenv("ALLOWED_ORIGINS", "")
+allowed_origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+if allowed_origins_env:
+    for o in allowed_origins_env.split(","):
+        clean_o = o.strip()
+        if clean_o and clean_o not in allowed_origins:
+            allowed_origins.append(clean_o)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
+    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Mount Static File directories for images and heatmaps
-uploads_dir = os.path.join(os.getcwd(), "uploads")
-demo_dir = os.path.join(os.getcwd(), "data", "demo")
-os.makedirs(uploads_dir, exist_ok=True)
-os.makedirs(demo_dir, exist_ok=True)
+# Safe directory setup for uploads & demo files
+base_dir = os.getcwd()
+uploads_dir = os.path.join(base_dir, "uploads")
+demo_dir = os.path.join(base_dir, "data", "demo")
 
-app.mount("/static/uploads", StaticFiles(directory=uploads_dir), name="uploads")
-app.mount("/static/demo", StaticFiles(directory=demo_dir), name="demo")
+try:
+    os.makedirs(uploads_dir, exist_ok=True)
+    os.makedirs(demo_dir, exist_ok=True)
+    app.mount("/static/uploads", StaticFiles(directory=uploads_dir), name="uploads")
+    app.mount("/static/demo", StaticFiles(directory=demo_dir), name="demo")
+except Exception:
+    # Read-only fallback for serverless execution
+    tmp_uploads = os.path.join(tempfile.gettempdir(), "cropguard_uploads")
+    os.makedirs(tmp_uploads, exist_ok=True)
+    app.mount("/static/uploads", StaticFiles(directory=tmp_uploads), name="uploads")
 
 # Include API Routers
 app.include_router(auth.router)
@@ -45,12 +73,22 @@ app.include_router(demo.router)
 
 @app.on_event("startup")
 def startup_event():
-    """Auto-seed sample demo data on application startup."""
-    db = SessionLocal()
-    try:
-        seed_database(db)
-    finally:
-        db.close()
+    """Auto-seed sample demo data on application startup if enabled."""
+    auto_seed = os.getenv("AUTO_SEED", "true").lower() in ("true", "1", "yes")
+    if auto_seed:
+        try:
+            db = SessionLocal()
+            try:
+                seed_database(db)
+            finally:
+                db.close()
+        except Exception as e:
+            logger.warning(f"Startup seeding notice: {e}")
+
+@app.get("/api/health")
+def api_health():
+    """Simple health check endpoint required for Vercel/cloud monitoring."""
+    return {"status": "ok"}
 
 @app.get("/")
 def root():

@@ -31,6 +31,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ currentRole, langu
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [recentInspections, setRecentInspections] = useState<CropInspection[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchDashboardData();
@@ -39,18 +40,40 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ currentRole, langu
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
+      setError(null);
       const [dashData, inspData] = await Promise.all([
         api.getDashboard(),
         api.getInspections({ limit: 6 })
       ]);
       setStats(dashData);
       setRecentInspections(inspData);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to load dashboard statistics', err);
+      setError(err?.message || 'Unable to connect to CropGuard AI backend service. Please verify your backend server or VITE_API_URL.');
     } finally {
       setLoading(false);
     }
   };
+
+  if (error && !stats) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="glass-panel p-8 rounded-3xl border border-rose-500/30 text-center max-w-md space-y-4">
+          <div className="w-12 h-12 rounded-2xl bg-rose-500/20 text-rose-400 flex items-center justify-center mx-auto text-xl font-bold">
+            !
+          </div>
+          <h2 className="text-lg font-bold text-white">Backend Connection Notice</h2>
+          <p className="text-xs text-slate-300">{error}</p>
+          <button
+            onClick={fetchDashboardData}
+            className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-lg shadow-emerald-600/30 transition-all cursor-pointer"
+          >
+            Retry Connection
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (loading || !stats) {
     return (
