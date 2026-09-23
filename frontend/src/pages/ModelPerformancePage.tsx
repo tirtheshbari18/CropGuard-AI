@@ -134,7 +134,7 @@ export const ModelPerformancePage: React.FC<ModelPerformancePageProps> = () => {
           </h3>
 
           <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
-            {modelStatus && modelStatus.supported_diseases?.map((d: string, idx: number) => (
+            {modelStatus && Array.isArray(modelStatus.supported_diseases) && modelStatus.supported_diseases.map((d: string, idx: number) => (
               <div key={idx} className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 font-medium">
                 • {d}
               </div>

@@ -63,7 +63,8 @@ export const MapPage: React.FC<MapPageProps> = () => {
     fetchMapData();
   }, []);
 
-  const filteredEvents = mapEvents.filter(ev => {
+  const safeEvents = Array.isArray(mapEvents) ? mapEvents : [];
+  const filteredEvents = safeEvents.filter(ev => {
     if (layerFilter === 'DISEASE') return ev.detection_type === 'DISEASE';
     if (layerFilter === 'PEST') return ev.detection_type === 'PEST';
     if (layerFilter === 'HIGH_SEVERITY') return ev.severity_level === 'HIGH' || ev.severity_level === 'CRITICAL';
@@ -154,7 +155,7 @@ export const MapPage: React.FC<MapPageProps> = () => {
             />
 
             {/* Outbreak Cluster Circles */}
-            {showOutbreaks && outbreaks.map((cl) => (
+            {showOutbreaks && Array.isArray(outbreaks) && outbreaks.map((cl) => (
               <Circle
                 key={cl.id}
                 center={[cl.center_lat, cl.center_lng]}

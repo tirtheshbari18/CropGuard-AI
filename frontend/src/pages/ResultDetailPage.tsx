@@ -209,7 +209,7 @@ export const ResultDetailPage: React.FC<ResultDetailPageProps> = ({ language }) 
           </h3>
 
           <div className="space-y-2">
-            {inspection.recommendations && inspection.recommendations.length > 0 ? (
+            {Array.isArray(inspection.recommendations) && inspection.recommendations.length > 0 ? (
               inspection.recommendations.map((rec, idx) => (
                 <div key={idx} className="glass-card p-4 rounded-2xl border border-slate-800/80 flex items-start gap-3">
                   <div className={`p-2 rounded-xl text-xs font-bold shrink-0 ${

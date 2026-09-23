@@ -38,8 +38,10 @@ export const ReportsPage: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {loading ? (
           <div className="col-span-full text-center text-xs text-slate-400 p-8">Loading PDF reports...</div>
+        ) : !Array.isArray(inspections) || inspections.length === 0 ? (
+          <div className="col-span-full text-center text-xs text-slate-400 p-8">No PDF reports available.</div>
         ) : (
-          inspections.map((insp) => (
+          (Array.isArray(inspections) ? inspections : []).map((insp) => (
             <div key={insp.id} className="glass-card p-5 rounded-2xl border border-slate-800 space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-mono font-bold text-slate-400">#REPORT-{insp.id}</span>

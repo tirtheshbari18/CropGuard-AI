@@ -130,7 +130,7 @@ export const InspectionsPage: React.FC<InspectionsPageProps> = () => {
       <div className="glass-panel rounded-3xl border border-slate-800 overflow-hidden">
         {loading ? (
           <div className="p-12 text-center text-xs text-slate-400">Loading inspection records...</div>
-        ) : inspections.length === 0 ? (
+        ) : !Array.isArray(inspections) || inspections.length === 0 ? (
           <div className="p-12 text-center text-xs text-slate-400">No crop inspections match your search filters.</div>
         ) : (
           <div className="overflow-x-auto">
@@ -148,12 +148,15 @@ export const InspectionsPage: React.FC<InspectionsPageProps> = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/60">
-                {inspections.map((insp) => (
+                {(Array.isArray(inspections) ? inspections : []).map((insp) => (
                   <tr key={insp.id} className="hover:bg-slate-800/40 transition-colors">
                     <td className="py-3 px-4">
                       <img
                         src={getMediaUrl(insp.image_url)}
                         alt={insp.crop_name}
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1592878904946-b3cd8ae243d0?w=600&auto=format&fit=crop&q=80';
+                        }}
                         className="w-10 h-10 rounded-lg object-cover border border-slate-700"
                       />
                     </td>

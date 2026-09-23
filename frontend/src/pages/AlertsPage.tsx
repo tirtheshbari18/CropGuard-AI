@@ -73,12 +73,12 @@ export const AlertsPage: React.FC<AlertsPageProps> = ({ currentRole }) => {
           <div className="glass-panel p-12 text-center text-xs text-slate-400 rounded-3xl">
             Loading early warning alerts...
           </div>
-        ) : alerts.length === 0 ? (
+        ) : !Array.isArray(alerts) || alerts.length === 0 ? (
           <div className="glass-panel p-12 text-center text-xs text-slate-400 rounded-3xl">
             No alerts found for selected filter status ({statusFilter}).
           </div>
         ) : (
-          alerts.map((alert) => (
+          (Array.isArray(alerts) ? alerts : []).map((alert) => (
             <div
               key={alert.id}
               className="glass-panel p-6 rounded-3xl border border-slate-800/80 hover:border-slate-700 transition-all space-y-4"
