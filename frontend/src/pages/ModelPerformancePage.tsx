@@ -12,10 +12,6 @@ export const ModelPerformancePage: React.FC<ModelPerformancePageProps> = () => {
   const [modelStatus, setModelStatus] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchModelInfo();
-  }, []);
-
   const fetchModelInfo = async () => {
     try {
       setLoading(true);
@@ -31,6 +27,10 @@ export const ModelPerformancePage: React.FC<ModelPerformancePageProps> = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchModelInfo();
+  }, []);
 
   if (loading || !metrics) {
     return (

@@ -3,7 +3,9 @@ import cv2
 import numpy as np
 
 def generate_sample_images():
-    demo_dir = os.path.join(os.getcwd(), "data", "demo")
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    backend_dir = os.path.dirname(os.path.dirname(current_dir))
+    demo_dir = os.path.join(backend_dir, "data", "demo")
     os.makedirs(demo_dir, exist_ok=True)
     
     crops = ["tomato", "potato", "apple", "corn"]

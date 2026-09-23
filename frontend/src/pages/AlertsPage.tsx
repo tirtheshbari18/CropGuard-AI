@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Bell, AlertTriangle } from 'lucide-react';
 import { api } from '../services/api';
 import type { Alert, UserRole, Language } from '../types';
@@ -13,11 +13,7 @@ export const AlertsPage: React.FC<AlertsPageProps> = ({ currentRole }) => {
   const [statusFilter, setStatusFilter] = useState<string>('ACTIVE');
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchAlerts();
-  }, [statusFilter]);
-
-  const fetchAlerts = async () => {
+  const fetchAlerts = useCallback(async () => {
     try {
       setLoading(true);
       const data = await api.getAlerts(statusFilter === 'ALL' ? undefined : statusFilter);
@@ -27,7 +23,11 @@ export const AlertsPage: React.FC<AlertsPageProps> = ({ currentRole }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [statusFilter]);
+
+  useEffect(() => {
+    fetchAlerts();
+  }, [fetchAlerts]);
 
   const handleUpdateStatus = async (id: number, newStatus: string) => {
     await api.updateAlertStatus(id, newStatus);

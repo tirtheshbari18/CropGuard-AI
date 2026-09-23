@@ -25,10 +25,6 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = () => {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchStats();
-  }, []);
-
   const fetchStats = async () => {
     try {
       setLoading(true);
@@ -40,6 +36,10 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
 
   if (loading || !stats) {
     return (

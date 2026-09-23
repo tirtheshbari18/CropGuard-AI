@@ -6,10 +6,6 @@ export const SystemHealthPage: React.FC = () => {
   const [health, setHealth] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchHealth();
-  }, []);
-
   const fetchHealth = async () => {
     try {
       setLoading(true);
@@ -21,6 +17,10 @@ export const SystemHealthPage: React.FC = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchHealth();
+  }, []);
 
   if (loading || !health) {
     return (

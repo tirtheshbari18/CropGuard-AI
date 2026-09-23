@@ -13,6 +13,7 @@ export const AdminPage: React.FC = () => {
         const res = await api.resetDemoDatabase();
         setResetMsg(res.message);
       } catch (err) {
+        console.error('Failed to reset demo database:', err);
         setResetMsg('Failed to reset demo database.');
       } finally {
         setResetting(false);

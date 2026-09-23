@@ -26,23 +26,24 @@ export const ResultDetailPage: React.FC<ResultDetailPageProps> = ({ language }) 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (id) {
-      fetchInspectionDetail(parseInt(id, 10));
-    }
-  }, [id]);
-
   const fetchInspectionDetail = async (inspId: number) => {
     try {
       setLoading(true);
       const data = await api.getInspectionById(inspId);
       setInspection(data);
     } catch (err) {
+      console.error('Inspection fetch error:', err);
       setError('Inspection record not found.');
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (id) {
+      fetchInspectionDetail(parseInt(id, 10));
+    }
+  }, [id]);
 
   const handleDownloadPDF = () => {
     if (inspection) {

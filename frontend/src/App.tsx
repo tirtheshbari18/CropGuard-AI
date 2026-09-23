@@ -22,8 +22,35 @@ import type { UserRole, Language } from './types';
 import { api } from './services/api';
 
 export const App: React.FC = () => {
-  const [currentRole, setCurrentRole] = useState<UserRole>('FARMER');
+  const [currentRole, setCurrentRole] = useState<UserRole>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('cropguard_user');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed.role) return parsed.role as UserRole;
+        }
+      } catch {
+        // Fallback to default
+      }
+    }
+    return 'FARMER';
+  });
   const [language, setLanguage] = useState<Language>('en');
+
+  const handleRoleChange = (role: UserRole) => {
+    setCurrentRole(role);
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('cropguard_user');
+        const userObj = saved ? JSON.parse(saved) : {};
+        userObj.role = role;
+        localStorage.setItem('cropguard_user', JSON.stringify(userObj));
+      } catch {
+        // Ignore storage errors
+      }
+    }
+  };
 
   const handleResetDemo = async () => {
     if (window.confirm('Reset demo environment and seed sample dataset?')) {
@@ -38,7 +65,7 @@ export const App: React.FC = () => {
         
         <Navbar
           currentRole={currentRole}
-          onRoleChange={setCurrentRole}
+          onRoleChange={handleRoleChange}
           language={language}
           onLanguageChange={setLanguage}
           onResetDemo={handleResetDemo}
@@ -50,7 +77,7 @@ export const App: React.FC = () => {
           <main className="flex-1 p-4 lg:p-8 max-w-7xl mx-auto w-full">
             <Routes>
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
-              <Route path="/login" element={<LoginPage onLoginSuccess={setCurrentRole} />} />
+              <Route path="/login" element={<LoginPage onLoginSuccess={handleRoleChange} />} />
               <Route path="/dashboard" element={<DashboardPage currentRole={currentRole} language={language} />} />
               <Route path="/analyze" element={<AnalyzePage language={language} />} />
               <Route path="/result/:id" element={<ResultDetailPage language={language} />} />

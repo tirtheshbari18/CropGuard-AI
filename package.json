@@ -6,9 +6,10 @@
     "frontend"
   ],
   "scripts": {
-    "build": "npm run build --workspace=frontend && node -e \"const fs=require('fs'); if(fs.existsSync('frontend/dist')){fs.cpSync('frontend/dist','dist',{recursive:true});}\"",
+    "build": "npm run build --workspace=frontend && node -e \"const fs=require('fs'); if(fs.existsSync('frontend/dist')){fs.rmSync('dist',{recursive:true,force:true});fs.cpSync('frontend/dist','dist',{recursive:true});}\"",
     "dev": "npm run dev --workspace=frontend",
-    "typecheck": "npm run typecheck --workspace=frontend"
+    "typecheck": "npm run typecheck --workspace=frontend",
+    "lint": "npm run lint --workspace=frontend"
   }
 }
 

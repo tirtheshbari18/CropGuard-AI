@@ -7,10 +7,6 @@ export const ReportsPage: React.FC = () => {
   const [inspections, setInspections] = useState<CropInspection[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
   const fetchData = async () => {
     try {
       setLoading(true);
@@ -22,6 +18,10 @@ export const ReportsPage: React.FC = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   return (
     <div className="space-y-6">

@@ -8,7 +8,7 @@ import {
   BrainCircuit,
   Info
 } from 'lucide-react';
-import { api } from '../services/api';
+import { api, getMediaUrl } from '../services/api';
 import type { Language } from '../types';
 
 interface AnalyzePageProps {
@@ -146,7 +146,7 @@ export const AnalyzePage: React.FC<AnalyzePageProps> = () => {
             {previewUrl ? (
               <div className="relative group rounded-2xl overflow-hidden border border-slate-700 bg-slate-950 max-h-80 flex items-center justify-center">
                 <img
-                  src={previewUrl}
+                  src={previewUrl.startsWith('blob:') || previewUrl.startsWith('data:') ? previewUrl : getMediaUrl(previewUrl)}
                   alt="Preview"
                   className="max-h-80 w-auto object-contain mx-auto"
                 />
@@ -190,7 +190,7 @@ export const AnalyzePage: React.FC<AnalyzePageProps> = () => {
                   }`}
                 >
                   <img
-                    src={sample.path}
+                    src={getMediaUrl(sample.path)}
                     alt={sample.name}
                     className="w-full h-16 object-cover rounded-xl mb-1.5"
                   />

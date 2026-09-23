@@ -29,6 +29,8 @@ allowed_origins_env = os.getenv("ALLOWED_ORIGINS", "")
 allowed_origins = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
+    "http://localhost:4173",
+    "http://127.0.0.1:4173",
     "http://localhost:3000",
     "http://127.0.0.1:3000",
 ]
@@ -41,13 +43,15 @@ if allowed_origins_env:
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
-    allow_origin_regex=r"https://.*\.vercel\.app",
+    allow_origin_regex=r"^https://.*\.vercel\.app$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # Safe directory setup for uploads & demo files
+from app.services.ml_service import UPLOAD_DIR
+
 app_dir = os.path.dirname(os.path.abspath(__file__))
 backend_dir = os.path.dirname(app_dir)
 root_dir = os.path.dirname(backend_dir)
@@ -58,27 +62,13 @@ demo_candidates = [
     os.path.join(os.getcwd(), "data", "demo"),
 ]
 demo_dir = next((d for d in demo_candidates if os.path.exists(d)), demo_candidates[0])
-
-uploads_candidates = [
-    os.path.join(backend_dir, "uploads"),
-    os.path.join(root_dir, "uploads"),
-    os.path.join(os.getcwd(), "uploads"),
-]
-uploads_dir = next((u for u in uploads_candidates if os.path.exists(u)), uploads_candidates[0])
+os.makedirs(demo_dir, exist_ok=True)
 
 try:
-    os.makedirs(uploads_dir, exist_ok=True)
-    os.makedirs(demo_dir, exist_ok=True)
-    app.mount("/static/uploads", StaticFiles(directory=uploads_dir), name="uploads")
+    app.mount("/static/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
     app.mount("/static/demo", StaticFiles(directory=demo_dir), name="demo")
-except Exception:
-    # Read-only fallback for serverless execution
-    tmp_uploads = os.path.join(tempfile.gettempdir(), "cropguard_uploads")
-    tmp_demo = os.path.join(tempfile.gettempdir(), "cropguard_demo")
-    os.makedirs(tmp_uploads, exist_ok=True)
-    os.makedirs(tmp_demo, exist_ok=True)
-    app.mount("/static/uploads", StaticFiles(directory=tmp_uploads), name="uploads")
-    app.mount("/static/demo", StaticFiles(directory=tmp_demo), name="demo")
+except Exception as e:
+    logger.warning(f"StaticFiles mount note: {e}")
 
 # Include API Routers
 app.include_router(auth.router)
@@ -108,6 +98,8 @@ def api_health():
     return {"status": "ok"}
 
 @app.get("/")
+@app.get("/api")
+@app.get("/api/")
 def root():
     return {
         "project": "CropGuard AI",

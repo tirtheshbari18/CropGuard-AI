@@ -11,20 +11,23 @@ import cv2
 
 logger = logging.getLogger("cropguard.ml")
 
-# Directory setup for uploads and heatmaps
-base_dir = os.getcwd()
-UPLOAD_DIR = os.path.join(base_dir, "uploads")
-HEATMAP_DIR = os.path.join(UPLOAD_DIR, "heatmaps")
+# Directory setup for uploads and heatmaps (detects read-only serverless filesystem)
+def _get_writable_dir(candidate_path: str, fallback_subdir: str) -> str:
+    try:
+        os.makedirs(candidate_path, exist_ok=True)
+        test_file = os.path.join(candidate_path, f".write_test_{os.getpid()}")
+        with open(test_file, "w") as f:
+            f.write("ok")
+        os.remove(test_file)
+        return candidate_path
+    except Exception:
+        fallback = os.path.join(tempfile.gettempdir(), fallback_subdir)
+        os.makedirs(fallback, exist_ok=True)
+        return fallback
 
-try:
-    os.makedirs(UPLOAD_DIR, exist_ok=True)
-    os.makedirs(HEATMAP_DIR, exist_ok=True)
-except Exception:
-    # Read-only serverless environment
-    UPLOAD_DIR = os.path.join(tempfile.gettempdir(), "cropguard_uploads")
-    HEATMAP_DIR = os.path.join(UPLOAD_DIR, "heatmaps")
-    os.makedirs(UPLOAD_DIR, exist_ok=True)
-    os.makedirs(HEATMAP_DIR, exist_ok=True)
+base_dir = os.getcwd()
+UPLOAD_DIR = _get_writable_dir(os.path.join(base_dir, "uploads"), "cropguard_uploads")
+HEATMAP_DIR = _get_writable_dir(os.path.join(UPLOAD_DIR, "heatmaps"), "cropguard_heatmaps")
 
 # PlantVillage Disease & Pest Catalog
 DISEASE_CLASSES = [

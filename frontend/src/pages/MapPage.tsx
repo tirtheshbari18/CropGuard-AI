@@ -43,10 +43,6 @@ export const MapPage: React.FC<MapPageProps> = () => {
   const [layerFilter, setLayerFilter] = useState<'ALL' | 'DISEASE' | 'PEST' | 'HIGH_SEVERITY'>('ALL');
   const [showOutbreaks, setShowOutbreaks] = useState(true);
 
-  useEffect(() => {
-    fetchMapData();
-  }, []);
-
   const fetchMapData = async () => {
     try {
       setLoading(true);
@@ -62,6 +58,10 @@ export const MapPage: React.FC<MapPageProps> = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchMapData();
+  }, []);
 
   const filteredEvents = mapEvents.filter(ev => {
     if (layerFilter === 'DISEASE') return ev.detection_type === 'DISEASE';

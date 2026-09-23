@@ -24,7 +24,18 @@ if DATABASE_URL.startswith("sqlite"):
     db_file_path = DATABASE_URL.replace("sqlite:///", "")
     db_dir = os.path.dirname(os.path.abspath(db_file_path)) if os.path.dirname(db_file_path) else os.getcwd()
     
-    if not os.access(db_dir, os.W_OK):
+    writable = False
+    try:
+        os.makedirs(db_dir, exist_ok=True)
+        test_f = os.path.join(db_dir, f".db_test_{os.getpid()}")
+        with open(test_f, "w") as f:
+            f.write("ok")
+        os.remove(test_f)
+        writable = True
+    except Exception:
+        writable = False
+
+    if not writable:
         tmp_db = os.path.join(tempfile.gettempdir(), "cropguard.db")
         DATABASE_URL = f"sqlite:///{tmp_db}"
         logger.info(f"Read-only filesystem detected. Diverting SQLite database to {tmp_db}")

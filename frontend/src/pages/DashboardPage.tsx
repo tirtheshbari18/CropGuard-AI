@@ -33,10 +33,6 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ currentRole, langu
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
-
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
@@ -54,6 +50,10 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ currentRole, langu
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
 
   if (error && !stats) {
     return (

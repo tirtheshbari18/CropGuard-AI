@@ -24,11 +24,34 @@ const apiClient = axios.create({
   timeout: 30000,
 });
 
+// Stateless JWT Token injection for Vercel/serverless environments
+apiClient.interceptors.request.use((config) => {
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('cropguard_token');
+    if (token && config.headers) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  }
+  return config;
+});
+
 export const api = {
   // Auth
   login: async (username: string, password: string) => {
     const res = await apiClient.post('/auth/login', { username, password });
     return res.data;
+  },
+
+  getCurrentUser: async () => {
+    const res = await apiClient.get('/auth/me');
+    return res.data;
+  },
+
+  logout: () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('cropguard_token');
+      localStorage.removeItem('cropguard_user');
+    }
   },
 
   // Analysis

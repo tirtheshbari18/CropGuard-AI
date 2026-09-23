@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Download, Trash2, Eye, History } from 'lucide-react';
 import { api, getMediaUrl } from '../services/api';
@@ -17,18 +17,15 @@ export const InspectionsPage: React.FC<InspectionsPageProps> = () => {
   const [severityFilter, setSeverityFilter] = useState('ALL');
   const [districtFilter, setDistrictFilter] = useState('ALL');
 
-  useEffect(() => {
-    fetchInspections();
-  }, [cropFilter, severityFilter, districtFilter]);
-
-  const fetchInspections = async () => {
+  const fetchInspections = useCallback(async (querySearch?: string) => {
     try {
       setLoading(true);
+      const s = querySearch !== undefined ? querySearch : search;
       const data = await api.getInspections({
         crop: cropFilter,
         severity: severityFilter,
         district: districtFilter,
-        search: search.trim() || undefined
+        search: s.trim() || undefined
       });
       setInspections(data);
     } catch (err) {
@@ -36,7 +33,11 @@ export const InspectionsPage: React.FC<InspectionsPageProps> = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [cropFilter, severityFilter, districtFilter, search]);
+
+  useEffect(() => {
+    fetchInspections();
+  }, [fetchInspections]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
