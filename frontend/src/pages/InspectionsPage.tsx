@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Download, Trash2, Eye, History } from 'lucide-react';
-import { api } from '../services/api';
+import { api, getMediaUrl } from '../services/api';
 import type { CropInspection, Language } from '../types';
 
 interface InspectionsPageProps {
@@ -151,7 +151,7 @@ export const InspectionsPage: React.FC<InspectionsPageProps> = () => {
                   <tr key={insp.id} className="hover:bg-slate-800/40 transition-colors">
                     <td className="py-3 px-4">
                       <img
-                        src={insp.image_url}
+                        src={getMediaUrl(insp.image_url)}
                         alt={insp.crop_name}
                         className="w-10 h-10 rounded-lg object-cover border border-slate-700"
                       />

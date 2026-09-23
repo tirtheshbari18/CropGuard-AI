@@ -2,7 +2,13 @@
   "name": "cropguard-ai",
   "version": "1.0.0",
   "private": true,
+  "workspaces": [
+    "frontend"
+  ],
   "scripts": {
-    "build": "node -e \"const {execSync}=require('child_process'), fs=require('fs'); if(fs.existsSync('frontend/package.json')){execSync('npm --prefix frontend run build',{stdio:'inherit'}); if(fs.existsSync('frontend/dist')){fs.cpSync('frontend/dist','dist',{recursive:true});}}else{execSync('npm run build',{stdio:'inherit'});}\""
+    "build": "npm run build --workspace=frontend && node -e \"const fs=require('fs'); if(fs.existsSync('frontend/dist')){fs.cpSync('frontend/dist','dist',{recursive:true});}\"",
+    "dev": "npm run dev --workspace=frontend",
+    "typecheck": "npm run typecheck --workspace=frontend"
   }
 }
+

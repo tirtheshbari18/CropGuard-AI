@@ -2,8 +2,22 @@ import axios from 'axios';
 import type { CropInspection, Alert, OutbreakCluster, DashboardStats, ModelMetrics } from '../types';
 
 // Read VITE_API_URL from environment; if empty, use relative same-origin /api path
-const BASE_URL = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace(/\/$/, '') : '';
-const API_BASE = `${BASE_URL}/api`;
+const rawApiUrl = (import.meta.env.VITE_API_URL || '').trim().replace(/\/+$/, '');
+// Avoid duplicate /api if the user provided e.g. https://domain.com/api in Vercel
+export const BASE_URL = rawApiUrl.endsWith('/api') ? rawApiUrl.slice(0, -4) : rawApiUrl;
+export const API_BASE = BASE_URL ? `${BASE_URL}/api` : '/api';
+
+/**
+ * Resolves static or uploaded asset URLs whether deployed together or separately.
+ */
+export const getMediaUrl = (path?: string | null): string => {
+  if (!path) return '';
+  if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) {
+    return path;
+  }
+  const cleanPath = path.startsWith('/') ? path : `/${path}`;
+  return BASE_URL ? `${BASE_URL}${cleanPath}` : cleanPath;
+};
 
 const apiClient = axios.create({
   baseURL: API_BASE,

@@ -14,7 +14,7 @@ import {
   AreaChart,
   Area
 } from 'recharts';
-import { api } from '../services/api';
+import { api, getMediaUrl } from '../services/api';
 import type { DashboardStats, CropInspection, UserRole, Language } from '../types';
 import { translations } from '../locales/i18n';
 
@@ -294,7 +294,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ currentRole, langu
               className="glass-card p-4 rounded-2xl border border-slate-800 hover:border-emerald-500/30 transition-all flex items-start gap-4 group"
             >
               <img
-                src={insp.image_url}
+                src={getMediaUrl(insp.image_url)}
                 alt={insp.crop_name}
                 className="w-16 h-16 rounded-xl object-cover border border-slate-700/80 group-hover:scale-105 transition-transform shrink-0"
               />

@@ -48,9 +48,23 @@ app.add_middleware(
 )
 
 # Safe directory setup for uploads & demo files
-base_dir = os.getcwd()
-uploads_dir = os.path.join(base_dir, "uploads")
-demo_dir = os.path.join(base_dir, "data", "demo")
+app_dir = os.path.dirname(os.path.abspath(__file__))
+backend_dir = os.path.dirname(app_dir)
+root_dir = os.path.dirname(backend_dir)
+
+demo_candidates = [
+    os.path.join(backend_dir, "data", "demo"),
+    os.path.join(root_dir, "data", "demo"),
+    os.path.join(os.getcwd(), "data", "demo"),
+]
+demo_dir = next((d for d in demo_candidates if os.path.exists(d)), demo_candidates[0])
+
+uploads_candidates = [
+    os.path.join(backend_dir, "uploads"),
+    os.path.join(root_dir, "uploads"),
+    os.path.join(os.getcwd(), "uploads"),
+]
+uploads_dir = next((u for u in uploads_candidates if os.path.exists(u)), uploads_candidates[0])
 
 try:
     os.makedirs(uploads_dir, exist_ok=True)
@@ -60,8 +74,11 @@ try:
 except Exception:
     # Read-only fallback for serverless execution
     tmp_uploads = os.path.join(tempfile.gettempdir(), "cropguard_uploads")
+    tmp_demo = os.path.join(tempfile.gettempdir(), "cropguard_demo")
     os.makedirs(tmp_uploads, exist_ok=True)
+    os.makedirs(tmp_demo, exist_ok=True)
     app.mount("/static/uploads", StaticFiles(directory=tmp_uploads), name="uploads")
+    app.mount("/static/demo", StaticFiles(directory=tmp_demo), name="demo")
 
 # Include API Routers
 app.include_router(auth.router)

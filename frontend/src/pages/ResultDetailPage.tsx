@@ -9,7 +9,7 @@ import {
   Sparkles,
   Flame
 } from 'lucide-react';
-import { api } from '../services/api';
+import { api, getMediaUrl } from '../services/api';
 import type { CropInspection, Language } from '../types';
 import { translations } from '../locales/i18n';
 
@@ -162,7 +162,7 @@ export const ResultDetailPage: React.FC<ResultDetailPageProps> = ({ language }) 
             </p>
             <div className="rounded-xl overflow-hidden bg-slate-950 h-64 flex items-center justify-center border border-slate-800">
               <img
-                src={inspection.image_url}
+                src={getMediaUrl(inspection.image_url)}
                 alt="Original Leaf"
                 className="h-full w-full object-cover"
               />
@@ -176,7 +176,7 @@ export const ResultDetailPage: React.FC<ResultDetailPageProps> = ({ language }) 
             </p>
             <div className="rounded-xl overflow-hidden bg-slate-950 h-64 flex items-center justify-center border border-slate-800 relative">
               <img
-                src={inspection.heatmap_url || inspection.image_url}
+                src={getMediaUrl(inspection.heatmap_url || inspection.image_url)}
                 alt="Grad-CAM Focus Heatmap"
                 className="h-full w-full object-cover"
               />
